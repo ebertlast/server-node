@@ -13,9 +13,8 @@ module.exports = app => {
     res.send(body);
   })
  
-  router.post('/json2', (req, res) => {
-    const body = req.body;
-    res.send(body);
+  router.post('/json_', (req, res) => {
+    res.send("Hola Mundo!");
   })
 
   router.post('/json3', (req, res) => {

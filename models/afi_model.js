@@ -1,3 +1,4 @@
+const genid = require('uid');
 const afiliados = [
   { id: 'a6a12312580', nombre: 'Juan', apellido: 'Perez', docidafiliado: '1234', docidtipo: 'DNI' },
   { id: '6a123125805', nombre: 'Maria', apellido: 'Gomez', docidafiliado: '5678', docidtipo: 'DNI' },
@@ -26,5 +27,43 @@ exports.afiliado = (id, callback) => {
   const afi = afiliados.find(afi => {
     return afi.id === id
   })
+  if (!afi) {
+    return callback(null, { error: 'El afiliado con id ' + id + ' no existe' });
+  }
   callback(afi);
+}
+
+exports.create = (body, callback) => {
+  const afiliado = {
+    id: genid.uid(),
+    docidafiliado: body.docidafiliado,
+    docidtipo: body.docidtipo,
+    nombre: body.nombre,
+    apellido: body.apellido
+  };
+  afiliados.push(afiliado);
+  callback(afiliado);
+}
+
+exports.update = (id, body, callback) => {
+  const afi = afiliados.find(afi => {
+    return afi.id === id
+  })
+  if (!afi) {
+    return callback(null, 'El afiliado con id ' + id + ' no existe');
+  }
+  afi.docidafiliado = body.docidafiliado;
+  afi.docidtipo = body.docidtipo;
+  afi.nombre = body.nombre;
+  afi.apellido = body.apellido;
+  callback(afi);
+}
+
+exports.delete = (id, callback) => {
+  let afiliado = afiliados.find(afi => afi.id === id);
+  if (!afiliado) {
+    return callback(null, 'El afiliado con id ' + id + ' no existe');
+  }
+  afiliados.splice(afiliados.indexOf(afiliado), 1);
+  callback(afiliado);
 }

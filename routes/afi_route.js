@@ -11,15 +11,19 @@ module.exports = app => {
     afi_model.listado(docidafiliado, (afiliados) => {
       res.send(afiliados);
     })
-    
+
   })
 
   // Read
   router.get('/:id/id', (req, res) => {
     const id = req.params.id;
 
-    const callbackFunction = function (afiliado) {
-      res.send(afiliado);
+    const callbackFunction = function (afiliado, error) {
+      if (error) {
+        res.status(404).send(error);
+      } else {
+        res.send(afiliado);
+      }
     }
 
     afi_model.afiliado(id, callbackFunction);
@@ -44,15 +48,9 @@ module.exports = app => {
     if (errores.length > 0) {
       res.status(400).send({ status: 'ko', errores });
     } else {
-      const afiliado = {
-        id: genid.uid(),
-        docidafiliado: body.docidafiliado,
-        docidtipo: body.docidtipo,
-        nombre: body.nombre,
-        apellido: body.apellido
-      }
-      afiliados.push(afiliado);
-      res.status(200).send({ status: 'ok', afiliado });
+      afi_model.create(body, (afiliado) => {
+        res.status(200).send({ status: 'ok', afiliado });
+      })
     }
   })
 
@@ -75,19 +73,17 @@ module.exports = app => {
       errores.push('El campo apellido es obligatorio');
     }
 
-    let afiliado = afiliados.find(afi => afi.id === id);
-
-    if (!afiliado) {
-      errores.push('El afiliado con id ' + id + ' no existe');
-    }
     if (errores.length > 0) {
       res.status(400).send({ status: 'ko', errores });
     } else {
-      afiliado.docidafiliado = body.docidafiliado;
-      afiliado.docidtipo = body.docidtipo;
-      afiliado.nombre = body.nombre;
-      afiliado.apellido = body.apellido;
-      res.status(200).send({ status: 'ok', afiliado });
+      afi_model.update(id, body, (afiliado, error) => {
+        if (error) {
+          errores.push(error);
+          res.status(400).send({ status: 'ko', errores });
+        } else {
+          res.status(200).send({ status: 'ok', afiliado });
+        }
+      })
     }
 
 
@@ -97,16 +93,17 @@ module.exports = app => {
   router.delete('/:id', (req, res) => {
     const id = req.params.id;
     const errores = [];
-    let afiliado = afiliados.find(afi => afi.id === id);
-    if (!afiliado) {
-      errores.push('El afiliado con id ' + id + ' no existe');
-    }
-    if (errores.length > 0) {
-      res.status(400).send({ status: 'ko', errores });
-    } else {
-      afiliados.splice(afiliados.indexOf(afiliado), 1);
-      res.status(200).send({ status: 'ok', afiliado });
-    }
+
+    afi_model.delete(id, (afiliado, error) => {
+      if (error) {
+        errores.push(error);
+      }
+      if (errores.length > 0) {
+        res.status(400).send({ status: 'ko', errores });
+      } else {
+        res.status(200).send({ status: 'ok', afiliado });
+      }
+    })
   })
 
   app.use('/afi', router);

@@ -1,47 +1,28 @@
 const genid = require('uid');
+const afi_model = require('../models/afi_model');
 
 module.exports = app => {
   var router = require("express").Router();
 
-  const afiliados = [
-    { id: 'a6a12312580', nombre: 'Juan', apellido: 'Perez', docidafiliado: '1234', docidtipo: 'DNI' },
-    { id: '6a123125805', nombre: 'Maria', apellido: 'Gomez', docidafiliado: '5678', docidtipo: 'DNI' },
-    { id: 'a1231258053', nombre: 'Pedro', apellido: 'Gonzalez', docidafiliado: '9087', docidtipo: 'DNI' },
-    { id: '12312580538', nombre: 'Jose', apellido: 'Perez', docidafiliado: 'ui47y5324', docidtipo: 'DNI' },
-    { id: '23125805385', nombre: 'Maria', apellido: 'Gonzalez', docidafiliado: '0000', docidtipo: 'DNI' },
-    { id: '31258053857', nombre: 'Pedro', apellido: 'Gomez', docidafiliado: '87654321', docidtipo: 'DNI' },
-    { id: '1258053857d', nombre: 'Jose', apellido: 'Perez', docidafiliado: '12345678', docidtipo: 'DNI' },
-    { id: '258053857d4', nombre: 'Maria', apellido: 'Gonzalez', docidafiliado: '654232', docidtipo: 'DNI' },
-    { id: '58053857d47', nombre: 'Pedro', apellido: 'Gomez', docidafiliado: '7576172', docidtipo: 'DNI' },
-    { id: '8053857d47f', nombre: 'Jose', apellido: 'Perez', docidafiliado: '09218375', docidtipo: 'DNI' },
-  ]
-
   // Read
   router.get('/:docidafiliado?', (req, res) => {
     const docidafiliado = req.params.docidafiliado;
-    if (!docidafiliado) {
+
+    afi_model.listado(docidafiliado, (afiliados) => {
       res.send(afiliados);
-    } else {
-      // const afiliado = afiliados.find(afi => afi.docidafiliado === docidafiliado);
-      const afi = afiliados.filter(afi => {
-        return afi.docidafiliado === docidafiliado
-      })
-      console.log("🚀 ~ file: afi_route.js ~ line 24 ~ router.get ~ afi", afi)
-      res.send(afi);
-    }
+    })
+    
   })
 
   // Read
   router.get('/:id/id', (req, res) => {
     const id = req.params.id;
-    if (!id) {
-      res.send(afiliados);
-    } else {
-      const afi = afiliados.filter(afi => {
-        return afi.id === id
-      })
-      res.send(afi);
+
+    const callbackFunction = function (afiliado) {
+      res.send(afiliado);
     }
+
+    afi_model.afiliado(id, callbackFunction);
   })
 
   // Create

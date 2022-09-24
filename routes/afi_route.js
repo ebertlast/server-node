@@ -1,4 +1,3 @@
-const genid = require('uid');
 const afi_model = require('../models/afi_model');
 
 module.exports = app => {

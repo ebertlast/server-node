@@ -6,9 +6,15 @@ module.exports = app => {
   // Read
   router.get('/:docidafiliado?', (req, res) => {
     const docidafiliado = req.params.docidafiliado;
+    const errores = [];
+    afi_model.listado(docidafiliado, (afiliados, error) => {
+      if (error) errores.push(error);
 
-    afi_model.listado(docidafiliado, (afiliados) => {
-      res.send(afiliados);
+      if (errores.length > 0) {
+        res.status(500).send({ status: 'ko', errores });
+      } else {
+        res.status(200).send({ status: 'ok', data: afiliados });
+      }
     })
 
   })

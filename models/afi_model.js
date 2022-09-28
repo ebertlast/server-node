@@ -17,7 +17,6 @@ const afiliados = [
 
 
 exports.listado = (docidafiliado, callback) => {
-
   let sqlString = `
   SELECT TOP 100 IDAFILIADO,PAPELLIDO,SAPELLIDO,PNOMBRE,SNOMBRE,SEXO,TIPO_DOC, DOCIDAFILIADO 
   FROM  AFI
@@ -37,13 +36,25 @@ exports.listado = (docidafiliado, callback) => {
 }
 
 exports.afiliado = (id, callback) => {
-  const afi = afiliados.find(afi => {
-    return afi.id === id
-  })
-  if (!afi) {
-    return callback(null, { error: 'El afiliado con id ' + id + ' no existe' });
+  let sqlString = `
+  SELECT TOP 1 IDAFILIADO,PAPELLIDO,SAPELLIDO,PNOMBRE,SNOMBRE,SEXO,TIPO_DOC, DOCIDAFILIADO 
+  FROM  AFI
+  WHERE IDAFILIADO = @IDAFILIADO
+  `;
+
+  let callbackfn = (result, err) => {
+    if (err) {
+      return callback(null, err);
+    }
+    var afiArr = result.recordset;
+    if (afiArr.length <= 0) {
+        return callback(null, { error: 'El afiliado con id ' + id + ' no existe' });
+    }
+    var afi = afiArr[0];
+    callback(afi);
   }
-  callback(afi);
+
+  db.query(sqlString, [{ name: 'IDAFILIADO', value: id }], callbackfn)
 }
 
 exports.create = (body, callback) => {

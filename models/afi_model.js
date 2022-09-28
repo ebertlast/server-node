@@ -1,5 +1,6 @@
 const genid = require('uid');
 const sql = require('mssql');
+const db = require('../libs/mssql_db');
 
 const afiliados = [
   { id: 'a6a12312580', nombre: 'Juan', apellido: 'Perez', docidafiliado: '1234', docidtipo: 'DNI' },
@@ -16,51 +17,23 @@ const afiliados = [
 
 
 exports.listado = (docidafiliado, callback) => {
-  const sqlConfig = {
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
-    server: process.env.DB_HOST,
-    pool: {
-      max: 10,
-      min: 0,
-      idleTimeoutMillis: 30000
-    },
-    options: {
-      encrypt: true, // for azure
-      trustServerCertificate: true // change to true for local dev / self-signed certs
+
+  let sqlString = `
+  SELECT TOP 100 IDAFILIADO,PAPELLIDO,SAPELLIDO,PNOMBRE,SNOMBRE,SEXO,TIPO_DOC, DOCIDAFILIADO 
+  FROM  AFI
+  WHERE COALESCE(@DOCIDAFILIADO, '') = '' 
+  OR    DOCIDAFILIADO LIKE '%'+@DOCIDAFILIADO+'%'
+  `;
+  let params = [
+    { name: 'DOCIDAFILIADO', value: docidafiliado }
+  ];
+
+  db.query(sqlString, params, (result, err) => {
+    if (err) {
+      return callback(null, err);
     }
-  }
-
-  sql.connect(sqlConfig)
-    .then(pool => {
-      let sqlString = `
-        SELECT TOP 100 IDAFILIADO,PAPELLIDO,SAPELLIDO,PNOMBRE,SNOMBRE,SEXO,TIPO_DOC, DOCIDAFILIADO 
-        FROM AFI
-        WHERE '${docidafiliado || ''}' = '' OR DOCIDAFILIADO LIKE '%${docidafiliado}%'
-        `;
-      
-      sqlString = `
-        SELECT TOP 100 IDAFILIADO,PAPELLIDO,SAPELLIDO,PNOMBRE,SNOMBRE,SEXO,TIPO_DOC, DOCIDAFILIADO 
-        FROM  AFI
-        WHERE COALESCE(@DOCIDAFILIADO, '') = '' 
-        OR    DOCIDAFILIADO LIKE '%'+@DOCIDAFILIADO+'%'
-        `;
-
-      pool
-        .request()
-        .input('DOCIDAFILIADO', docidafiliado)
-        .query(sqlString)
-        .then(result => {
-          callback(result, null);
-        }).catch(err => {
-          callback(null, err);
-        });
-
-    }).catch(err => {
-      console.log(err);
-      callback(null, err);
-    });
+    callback(result);
+  })
 }
 
 exports.afiliado = (id, callback) => {

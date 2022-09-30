@@ -42,3 +42,43 @@ exports.read = (body, callback) => {
     callback(result);
   })
 }
+
+exports.update = (body, callback) => {
+  const sqlString = `
+  UPDATE TGEN SET DESCRIPCION=@DESCRIPCION,VALOR1=@VALOR1,DFECHA=@DFECHA,OBSERVACION=@OBSERVACION
+  WHERE TABLA=@TABLA AND CAMPO=@CAMPO AND CODIGO=@CODIGO
+  `;
+  const params = [
+    { name: 'TABLA', value: body.TABLA },
+    { name: 'CAMPO', value: body.CAMPO },
+    { name: 'CODIGO', value: body.CODIGO },
+    { name: 'DESCRIPCION', value: body.DESCRIPCION },
+    { name: 'VALOR1', value: body.VALOR1 },
+    { name: 'DFECHA', value: body.DFECHA || 0 },
+    { name: 'OBSERVACION', value: body.OBSERVACION }
+  ];
+  db.query(sqlString, params, (result, err) => {
+    if (err) {
+      return callback(null, err);
+    }
+    callback(result);
+  })
+}
+
+exports.delete = (body, callback) => {
+  const sqlString = `
+  DELETE FROM TGEN
+  WHERE TABLA=@TABLA AND CAMPO=@CAMPO AND CODIGO=@CODIGO
+  `;
+  const params = [
+    { name: 'TABLA', value: body.TABLA },
+    { name: 'CAMPO', value: body.CAMPO },
+    { name: 'CODIGO', value: body.CODIGO }
+  ];
+  db.query(sqlString, params, (result, err) => {
+    if (err) {
+      return callback(null, err);
+    }
+    callback(result);
+  })
+}

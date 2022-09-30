@@ -1,5 +1,11 @@
 const sql = require('mssql');
 
+/**
+ * Método generico para ejecutar consultas en la BD
+ * @param {string} sqlString Consulta Query a ejecutar
+ * @param {Array} inputs Array de objetos con los parametros de la consulta
+ * @param {Function} callback Funcion de callback
+ */
 exports.query = async (sqlString, inputs, callback) => {
   const sqlConfig = {
     user: process.env.DB_USER,

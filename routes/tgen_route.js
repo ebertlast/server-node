@@ -29,5 +29,18 @@ module.exports = app => {
     }
   })
 
+  // Read
+  router.get('/:TABLA/:CAMPO/:CODIGO?', (req, res) => {
+    console.log(req.params);
+    tgen_model.read(req.params, (data, error) => {
+      if (error) {
+        res.status(500).send({ status: 'ko', error });
+      } else {
+        res.status(200).send({ status: 'ok', data });
+      }
+    })
+  })
+
+
   app.use('/tgen', router);
 }

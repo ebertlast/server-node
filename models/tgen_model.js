@@ -28,7 +28,7 @@ exports.read = (body, callback) => {
   const sqlString = `
   SELECT TABLA,CAMPO,CODIGO,DESCRIPCION,VALOR1,DFECHA,OBSERVACION
   FROM TGEN
-  WHERE TABLA=@TABLA AND CAMPO=@CAMPO AND CODIGO=@CODIGO
+  WHERE TABLA=@TABLA AND CAMPO=@CAMPO AND (@CODIGO IS NULL OR CODIGO=@CODIGO) 
   `;
   const params = [
     { name: 'TABLA', value: body.TABLA },
